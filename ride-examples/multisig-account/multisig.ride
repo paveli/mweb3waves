@@ -1,0 +1,32 @@
+{-# STDLIB_VERSION 3 #-}
+{-# CONTENT_TYPE DAPP #-}
+{-# SCRIPT_TYPE ACCOUNT #-}
+
+
+let acc1pubkey = base58'51d3kyfrfyPLJvdKzeGYRM1GDVBG5Z1uTyQZYVr4hNDF'
+let acc2pubkey = base58'Ebb2ffqL8cMnNmXPNvHLy53xrK7t5WaSFhneCPBSoxop'
+let acc3pubkey = base58'4TZWZgoBfVhT6LVYKQtLq3q72HnG9pXt2681L7npZGgP'
+
+@Verifier(tx)
+func verify() = {
+    let acc1first   = sigVerify(tx.bodyBytes, tx.proofs[0], acc1pubkey)
+    let acc1second  = sigVerify(tx.bodyBytes, tx.proofs[1], acc1pubkey)
+    let acc1third   = sigVerify(tx.bodyBytes, tx.proofs[2], acc1pubkey)
+
+    let acc2first   = sigVerify(tx.bodyBytes, tx.proofs[0], acc2pubkey)
+    let acc2second  = sigVerify(tx.bodyBytes, tx.proofs[1], acc2pubkey)
+    let acc2third   = sigVerify(tx.bodyBytes, tx.proofs[2], acc2pubkey)
+
+    let acc3first   = sigVerify(tx.bodyBytes, tx.proofs[0], acc3pubkey)
+    let acc3second  = sigVerify(tx.bodyBytes, tx.proofs[1], acc3pubkey)
+    let acc3third   = sigVerify(tx.bodyBytes, tx.proofs[2], acc3pubkey)
+
+    let acc1AndAcc2 = (acc1first && acc2second) || (acc1first && acc2third) || (acc1second && acc2first) || (acc1second && acc2third) || (acc1third && acc2first) || (acc1third && acc2second) 
+    let acc1AndAcc3 = (acc1first && acc3second) || (acc1first && acc3third) || (acc1second && acc3first) || (acc1second && acc3third) || (acc1third && acc3first) || (acc1third && acc3second) 
+    let acc2AndAcc3 = (acc2first && acc3second) || (acc2first && acc3third) || (acc2second && acc3first) || (acc2second && acc3third) || (acc2third && acc3first) || (acc2third && acc3second) 
+
+    match tx {
+        case _ => acc1AndAcc2 || acc1AndAcc3 || acc2AndAcc3
+    }
+
+}
